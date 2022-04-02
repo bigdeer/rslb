@@ -1,3 +1,8 @@
+"""
+cron: 55 8 * * *
+new Env('人社练兵2022');
+"""
+
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
@@ -9,6 +14,7 @@ import time
 import random
 from PIL import Image
 import threading
+import os
 import tk #导入同目录题库文件
 
 # 验证码默认保存在D盘，请确保存在D盘符
@@ -27,8 +33,8 @@ def get_new(str):
 # 获取百度token
 # client_id、client_secret需要自己在百度申请!!!!!!!!!!
 def get_token():
-    client_id = ''
-    client_secret = ''
+    client_id = os.getenv("BD_APIKey")
+    client_secret = os.getenv("BD_SecretKey")
     base_url = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id='
     host = base_url + client_id + '&client_secret=' + client_secret
     response = requests.get(host)
@@ -389,8 +395,8 @@ class myThread (threading.Thread):
 # 创建新线程 这里默认是十个用户，根据实际情况自行删减
 # 这里默认密码是123456，可根据实际情况自行改动
 
-thread1 = myThread("", "", "")
-thread2 = myThread("", "", "")
+thread1 = myThread("13967698797", "abcde12345", "Wcj")
+thread2 = myThread("15824078866", "717973", "Jyz")
 """thread3 = myThread("1XXXXXXXXXX", "123456", "用户3")
 thread4 = myThread("1XXXXXXXXXX", "123456", "用户4")
 thread5 = myThread("1XXXXXXXXXX", "123456", "用户5")
