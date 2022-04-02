@@ -12,7 +12,8 @@ import threading
 import tk #导入同目录题库文件
 
 # 验证码默认保存在D盘，请确保存在D盘符
-path = 'd:/kaptcha'
+#path = 'd:/kaptcha' windows
+path ='/tmp'
 
 # 去除多余的乱码
 def get_new(str):
