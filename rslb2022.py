@@ -2,7 +2,6 @@
 cron: 55 8 * * *
 new Env('人社练兵2022');
 """
-
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
@@ -14,8 +13,18 @@ import time
 import random
 from PIL import Image
 import threading
-#import tk #导入同目录题库文件
+#import schedule  # 该版本加入了自动运行，需要格外安装schedule，具体安装命令为：pip install schedule
 import os
+
+'''
+特别说明：将Python文件打包成exe可执行程序
+1.设置好百度的client_id、client_secret、相关的用户信息、自动运行时间等关键参数；
+2.安装打包软件pyinstaller，安装命令为：pip install pyinstaller；
+3.运行打包命令：pyinstaller -F multithreading.py；
+4.打包完成后，系统会生成一个为名dist的文件夹（和其他一堆没用的东西），把里面的multithreading.exe文件单独拷贝出来使用（文件名可以随便改，但是后缀不能改！）；
+5.打包过程及使用过程中，pyinstaller与生成文件会被杀毒软件识别为木马，需要允许后才能使用。
+6.打包后的Exe程序，理论上可以长期运行。也就是说，如果你有一台24小时不关机的电脑，只要不关闭程序窗口，它可以自动运行到整个活动结束。
+'''
 
 # 验证码默认保存在D盘，请确保存在D盘符
 #path = 'd:/kaptcha'
@@ -3070,20 +3079,23 @@ questions = [{"id":"65047","answer":"B","A":"职业指导","B":"就业援助","C
 {"id":"68116","answer":"2020","A":"","B":"","C":"","D":"","E":""},
 {"id":"68117","answer":"回避","A":"","B":"","C":"","D":"","E":""}]
 
+
 # 去除多余的乱码
 def get_new(str):
-    return str.replace("2526gt;", "").replace("2526lt;", "")\
-        .replace("&amp;", "").replace("/span", "").replace("span", "")\
-        .replace("&nbsp;", "").replace("/p", "").replace("p", "").replace(" ", "")\
-        .replace("\n", "").replace("\r", "").replace("\t", "").replace("&lt;", "").replace("&gt;", "")\
+    return str.replace("2526gt;", "").replace("2526lt;", "") \
+        .replace("&amp;", "").replace("/span", "").replace("span", "") \
+        .replace("&nbsp;", "").replace("/p", "").replace("p", "").replace(" ", "") \
+        .replace("\n", "").replace("\r", "").replace("\t", "").replace("&lt;", "").replace("&gt;", "") \
         .replace("(", "（").replace(")", "）").replace("br/", "")
 
 
 # 获取百度token
 # client_id、client_secret需要自己在百度申请!!!!!!!!!!
 def get_token():
-    client_id = 'saWL6jnl3z4YkeqogRgkbE3G'
-    client_secret = 'p1vzjrYlpNfYKi3frdZDPEGy2YADIsg5'
+    #client_id = ''
+    #client_secret = ''
+    client_id = os.getenv('BD_APIKey')
+    client_secret =  os.getenv('BD_SecretKey')
     base_url = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id='
     host = base_url + client_id + '&client_secret=' + client_secret
     response = requests.get(host)
@@ -3236,8 +3248,9 @@ def finish_day(session, chapterId, questionType, name):
             print(name + '-->日日学提交失败！')
     if id_len != 5:
         session.get('https://bw.rsbsyzx.cn/api/questionPractice/refreshQuestion',
-                                params={'chapterId': chapterId, 'questionType': questionType})
-        print(name + '-->已完成日日学-->' + chapterName[chapterId] + '-->' + typeName[questionType] + '-->' + str(id_len) + '题，并重置学习状态')
+                    params={'chapterId': chapterId, 'questionType': questionType})
+        print(name + '-->已完成日日学-->' + chapterName[chapterId] + '-->' + typeName[questionType] + '-->' + str(
+            id_len) + '题，并重置学习状态')
     else:
         print(name + '-->已完成日日学-->' + chapterName[chapterId] + '-->' + typeName[questionType] + '-->5题')
 
@@ -3365,7 +3378,7 @@ def finish_week(session, name):
         print(name + '-->当日周周练已完成，无法再次答题！')
 
 
-# 完成月月比_人机对抗
+# 完成月月比_人机对抗：随机题目
 def finish_month(session, name):
     findIsHasAttend = session.get('https://bw.rsbsyzx.cn/api/fight/findIsHasAttend')
     hasAttend = json.loads(findIsHasAttend.content.decode('UTF-8'))['data']['hasAttend']
@@ -3389,23 +3402,8 @@ def finish_month(session, name):
             session.post('https://bw.rsbsyzx.cn/api/fight/saveUserAgainstRecordsDetail',
                          params={'againstRecordId': againstId, 'questionId': questionId, 'userAnswer': userAnswer,
                                  'answerDuration': t, 'againstWay': '1'})
-        t = random.randint(182, 239)
-        print(name + '-->为避免秒答现象，本次月月比人机对战将在' + str(t) + '秒后完成！不要随意关闭程序哦。')
-        time.sleep(30)
-        print(name + '-->已经过30秒，这才刚刚开始...')
-        time.sleep(30)
-        print(name + '-->已经过1分钟，请耐心等待...')
-        time.sleep(30)
-        print(name + '-->已经过1分30秒，马上就结束啦...')
-        time.sleep(30)
-        print(name + '-->已经过2分钟，请耐心等待...')
-        time.sleep(30)
-        print(name + '-->已经过2分30秒，马上就可以提交啦！')
-        time.sleep(30)
-        print(name + '-->已经过3分钟，准备提交！')
-        time.sleep(t - 180)
         resultsStr = session.post('https://bw.rsbsyzx.cn/api/fight/calculateBattleResults',
-                     params={'againstId': againstId})
+                                  params={'againstId': againstId})
         if json.loads(resultsStr.content.decode('UTF-8'))['code'] != 'SUCCESS':
             print(name + '-->月月比提交失败！')
             print(resultsStr.content.decode('UTF-8'))
@@ -3414,8 +3412,8 @@ def finish_month(session, name):
 
 # 一个人完成日日学90题，周周练2遍，月月比1遍
 def one_person(session, name):
-    # 下面一共是六大类题目、三大类题型，全部做完一遍是90道题目。请根据个人需要适当删减。
-    l1 =random.sample(range(0,17),2)    #不重复随机选择2组，可根据需要调整
+    #不重复随机选择2组，可根据需要调整
+    l1 =random.sample(range(0,17),2)    
     for x in l1:
         finish_day(session, list(chapterName)[x//3],list(typeName)[x%3], name)
     # 周周练两遍
@@ -3426,7 +3424,7 @@ def one_person(session, name):
 
 
 # 定义多线程
-class myThread (threading.Thread):
+class myThread(threading.Thread):
     def __init__(self, mobile, password, name):
         threading.Thread.__init__(self)
         self.mobile = mobile
@@ -3440,47 +3438,17 @@ class myThread (threading.Thread):
         print(self.name + "-->已完成答题")
 
 
+# 用户信息都放在这里，根据实际情况自行删减
 # 多线程版本是同时进行多个用户的答题，不需要一个个的等待，可大幅节省程序的运行时间。
 # 创建新线程 这里默认是十个用户，根据实际情况自行删减
 # 这里默认密码是123456，可根据实际情况自行改动
-#从系统环境变量RSLB_Users获取用户，默认2个用户，根据需要修改下面的代码。
-#格式："手机号码1#密码1#用户名1,手机号码2#密码2#用户名2"
+myuser=os.getenv("RSLB_Users")
 users=[]
-for i in os.getenv("RSLB_Users").split(","):
+for i in myuser.split(","):
     users.append(i.split("#"))
-thread1 = myThread(users[0][0], users[0][1], users[0][2])
-thread2 = myThread(users[1][0], users[1][1], users[1][2])
-
-"""thread3 = myThread("1XXXXXXXXXX", "123456", "用户3")
-thread4 = myThread("1XXXXXXXXXX", "123456", "用户4")
-thread5 = myThread("1XXXXXXXXXX", "123456", "用户5")
-thread6 = myThread("1XXXXXXXXXX", "123456", "用户6")
-thread7 = myThread("1XXXXXXXXXX", "123456", "用户7")
-thread8 = myThread("1XXXXXXXXXX", "123456", "用户8")
-thread9 = myThread("1XXXXXXXXXX", "123456", "用户9")
-thread0 = myThread("1XXXXXXXXXX", "123456", "用户0") """
-
-# 开启新线程 这里对应的是上面的十个用户，根据上面的实际情况自行删减
-thread1.start()
-thread2.start()
-""" thread3.start()
-thread4.start()
-thread5.start()
-thread6.start()
-thread7.start()
-thread8.start()
-thread9.start()
-thread0.start() """
-
-# 调用新线程 这里对应的是上面的十个用户，根据上面的实际情况自行删减
-thread1.join()
-thread2.join()
-""" thread3.join()
-thread4.join()
-thread5.join()
-thread6.join()
-thread7.join()
-thread8.join()
-thread9.join()
-thread0.join() """
-print("退出线程")
+names = locals()
+for j in range(len(users)):
+    names['thread' + str(j) ] = myThread(users[j][0], users[j][1], users[j][2])
+    names.get('thread' + str(j)).start()
+    names.get('thread' + str(j)).join()
+print("完整结束")
