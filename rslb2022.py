@@ -3448,7 +3448,7 @@ users=[]
 for i in os.getenv("RSLB_Users").split(","):
     users.append(i.split("#"))
 thread1 = myThread(users[0][0], users[0][1], users[0][2])
-thread1 = myThread(users[1][0], users[1][1], users[1][2])
+thread2 = myThread(users[1][0], users[1][1], users[1][2])
 
 """thread3 = myThread("1XXXXXXXXXX", "123456", "用户3")
 thread4 = myThread("1XXXXXXXXXX", "123456", "用户4")
