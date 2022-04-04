@@ -3449,6 +3449,9 @@ for i in myuser.split(","):
 names = locals()
 for j in range(len(users)):
     names['thread' + str(j) ] = myThread(users[j][0], users[j][1], users[j][2])
+for j in range(len(users)):
     names.get('thread' + str(j)).start()
+for j in range(len(users)):
     names.get('thread' + str(j)).join()
 print("完整结束")
+
