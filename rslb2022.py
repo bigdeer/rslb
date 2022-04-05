@@ -3443,6 +3443,7 @@ class myThread(threading.Thread):
 # 创建新线程 这里默认是十个用户，根据实际情况自行删减
 # 这里默认密码是123456，可根据实际情况自行改动
 myuser=os.getenv("RSLB_Users")
+print(myuser)
 users=[]
 for i in myuser.split(","):
     users.append(i.split("#"))
